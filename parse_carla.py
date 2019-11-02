@@ -59,7 +59,7 @@ for topic, msg, t in ori_bag.read_messages(topics=['/carla/ego_vehicle/lidar/lid
     new_bag.write(
         '/carla/ego_vehicle/lidar/lidar1/velodyne_points0', new_msg, t=t)
     distance = numpy.sqrt(x**2 + y**2 + z**2)
-    noise = numpy.random.normal(0, 0.03)
+    noise = numpy.random.normal(0, 0.03, distance.shape)
     ratio = (distance+noise)/distance
     points_array[:, 0] = points_array[:, 0]*ratio
     points_array[:, 1] = points_array[:, 1]*ratio
@@ -127,5 +127,4 @@ for topic, msg, t in ori_bag.read_messages(topics=None):
     new_bag.write(topic, msg, t=t)
 
 ori_bag.close()
-os.remove(sys.argv[1]+'.orig')
 new_bag.close()
