@@ -31,14 +31,15 @@ for topic, msg, t in ori_bag.read_messages(topics=['/carla/ego_vehicle/lidar/lid
         z = data[2]
         points_list.append([x, y, z])
     points_array = numpy.array(points_list).reshape(-1, 3)
+    # flip
     points_array = numpy.flip(points_array, axis=0)
     intensity = numpy.arange(points_array.shape[0]).reshape(-1, 1)
-    points_array = numpy.append(points_array, intensity, axis=1)
     x = points_array[:, 0]
     y = points_array[:, 1]
     z = points_array[:, 2]
     deg = numpy.arctan2(z, numpy.sqrt(x**2 + y**2)).reshape(-1, 1)
     ring = numpy.zeros(deg.shape)
+    # assign 'ring'
     last_ring = -1
     last_deg = float('-inf')
     for i in range(ring.size):
@@ -50,6 +51,14 @@ for topic, msg, t in ori_bag.read_messages(topics=['/carla/ego_vehicle/lidar/lid
         stop_time = t
         break
     points_array = numpy.append(points_array, ring, axis=1)
+    # velodyne way order
+    azimuth = numpy.arctan2(y, x)
+    azimuth -= azimuth[0]
+    azimuth[azimuth < 0] += 2*numpy.pi
+    points_array = points_array[azimuth.argsort()]
+    points_array = numpy.flip(points_array, axis=0)
+    points_array = numpy.append(points_array, intensity, axis=1)
+    points_array[:,[3,4]] = points_array[:,[4,3]]
     fields = [PointField('x', 0, PointField.FLOAT32, 1),
               PointField('y', 4, PointField.FLOAT32, 1),
               PointField('z', 8, PointField.FLOAT32, 1),
