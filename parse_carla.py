@@ -67,7 +67,7 @@ for topic, msg, t in ori_bag.read_messages(topics=['/carla/ego_vehicle/lidar/lid
     new_msg = pcl2.create_cloud(msg.header, fields, points_array)
     new_bag.write(
         '/carla/ego_vehicle/lidar/lidar1/velodyne_points0', new_msg, t=t)
-    distance = numpy.sqrt(x**2 + y**2 + z**2)
+    distance = numpy.linalg.norm(points_array[:,0:3],axis=1)
     noise = numpy.random.normal(0, 0.03, distance.shape)
     ratio = (distance+noise)/distance
     points_array[:, 0] = points_array[:, 0]*ratio
